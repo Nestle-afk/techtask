@@ -7,6 +7,7 @@ import com.example.techtask.repository.OrderRepository;
 import com.example.techtask.repository.UserRepository;
 import com.example.techtask.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.el.stream.Stream;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,11 +26,7 @@ public class UserServiceImpl implements UserService {
     public User findUser() {
         return userRepository.findAll()
                 .stream()
-                .max(Comparator.comparing(user -> user.getOrders()
-                        .stream()
-                        .filter(item -> item.getCreatedAt().getYear() == 2003 && item.getOrderStatus().equals(OrderStatus.DELIVERED))
-                        .mapToDouble(Order::getPrice)
-                        .sum()))
+                .max(Comparator.comparing(this::findOrderSum))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
@@ -43,5 +40,13 @@ public class UserServiceImpl implements UserService {
                         .map(Order::getUserId)
                         .distinct()
                         .toList());
+    }
+
+    private Double findOrderSum(User user){
+        return   user.getOrders()
+                .stream()
+                .filter(item -> item.getCreatedAt().getYear() == 2003 && item.getOrderStatus().equals(OrderStatus.DELIVERED))
+                .mapToDouble(Order::getPrice)
+                .sum();
     }
 }
