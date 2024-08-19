@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
                 .stream()
                 .max(Comparator.comparing(user -> user.getOrders()
                         .stream()
-                        .filter(item -> item.getCreatedAt().getYear() == 2003)
+                        .filter(item -> item.getCreatedAt().getYear() == 2003 && item.getOrderStatus().equals(OrderStatus.DELIVERED))
                         .mapToDouble(Order::getPrice)
                         .sum()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -39,8 +39,7 @@ public class UserServiceImpl implements UserService {
                 .findAllById(orderRepository
                 .findAll()
                 .stream()
-                .filter(order -> order.getCreatedAt().getYear() == 2010)
-                .filter(order -> order.getOrderStatus().equals(OrderStatus.DELIVERED))
+                .filter(order -> order.getCreatedAt().getYear() == 2010 && order.getOrderStatus().equals(OrderStatus.PAID))
                         .map(Order::getUserId)
                         .distinct()
                         .toList());
